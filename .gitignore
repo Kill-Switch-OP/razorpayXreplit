@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+build/
+dist/
+coverage/
+.vite/
+.cache/
+.turbo/
+.next/
+
+# TypeScript incremental build information
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Replit / local runtime metadata
+.replit/
+.replit-artifact/
+**/.replit-artifact/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp

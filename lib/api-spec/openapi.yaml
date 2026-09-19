@@ -1,0 +1,497 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Business Radar API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: radar
+    description: Business Radar intelligence operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /radar/summary:
+    get:
+      operationId: getRadarSummary
+      tags: [radar]
+      summary: Get the current radar summary
+      responses:
+        "200":
+          description: Current business signal summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RadarSummary"
+  /radar/scan:
+    post:
+      operationId: scanRadar
+      tags: [radar]
+      summary: Run all deterministic radar detectors
+      responses:
+        "200":
+          description: Fresh scan result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanResult"
+  /anomalies:
+    get:
+      operationId: listAnomalies
+      tags: [radar]
+      summary: List detected cross-system anomalies
+      responses:
+        "200":
+          description: Detected anomalies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Anomaly"
+  /anomalies/{id}:
+    get:
+      operationId: getAnomaly
+      tags: [radar]
+      summary: Get an anomaly investigation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Detailed anomaly investigation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Investigation"
+        "404":
+          description: Anomaly not found
+  /anomalies/{id}/ask:
+    post:
+      operationId: askCopilot
+      tags: [radar]
+      summary: Ask a contextual copilot question about an investigation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CopilotQuestion"
+      responses:
+        "200":
+          description: Evidence-grounded copilot answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CopilotAnswer"
+        "404":
+          description: Anomaly not found
+  /sources:
+    get:
+      operationId: listDataSources
+      tags: [radar]
+      summary: List connected data sources
+      responses:
+        "200":
+          description: Demo data sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DataSource"
+  /overview:
+    get:
+      operationId: getBusinessOverview
+      tags: [radar]
+      summary: Get the merchant business pulse and priority signals
+      responses:
+        "200":
+          description: Business overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessOverview"
+  /data-hub:
+    get:
+      operationId: getDataHub
+      tags: [radar]
+      summary: Get connected data and the latest workbook import
+      responses:
+        "200":
+          description: Data hub state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataHub"
+  /data/import:
+    post:
+      operationId: importBusinessWorkbook
+      tags: [radar]
+      summary: Import business data from an Excel workbook
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/WorkbookUpload"
+      responses:
+        "200":
+          description: Workbook import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkbookImport"
+    delete:
+      operationId: clearBusinessWorkbook
+      tags: [radar]
+      summary: Remove the imported workbook and clear business context
+      responses:
+        "200":
+          description: Workbook context cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClearWorkbookResult"
+  /copilot/ask:
+    post:
+      operationId: askBusinessCopilot
+      tags: [radar]
+      summary: Ask an evidence-grounded question about the business
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CopilotQuestion"
+      responses:
+        "200":
+          description: Evidence-grounded business answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessCopilotAnswer"
+components:
+  schemas:
+    ClearWorkbookResult:
+      type: object
+      required: [contextState, message]
+      properties:
+        contextState:
+          type: string
+          enum: [NO_CONTEXT]
+        message:
+          type: string
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+    Severity:
+      type: string
+      enum: [HIGH, MEDIUM, LOW]
+    Anomaly:
+      type: object
+      required: [id, type, title, severity, summary, impactAmount, affectedRecords, systems, firstDetected, evidenceCount, recommendedAction]
+      properties:
+        id: { type: string }
+        type: { type: string }
+        title: { type: string }
+        severity: { $ref: "#/components/schemas/Severity" }
+        summary: { type: string }
+        impactAmount: { type: number }
+        affectedRecords: { type: integer }
+        affectedCustomers: { type: integer }
+        systems:
+          type: array
+          items: { type: string }
+        firstDetected: { type: string }
+        evidenceCount: { type: integer }
+        recommendedAction: { type: string }
+    EvidenceRecord:
+      type: object
+      required: [id, system, recordType, recordId, label, detail, status, timestamp]
+      properties:
+        id: { type: string }
+        system: { type: string }
+        recordType: { type: string }
+        recordId: { type: string }
+        label: { type: string }
+        detail: { type: string }
+        status: { type: string }
+        timestamp: { type: string }
+        amount: { type: ["number", "null"] }
+        metadata:
+          type: object
+          additionalProperties: { type: string }
+    Investigation:
+      type: object
+      required: [anomaly, executiveExplanation, knownFacts, uncertainties, possibleCause, evidence]
+      properties:
+        anomaly: { $ref: "#/components/schemas/Anomaly" }
+        executiveExplanation: { type: string }
+        knownFacts:
+          type: array
+          items: { type: string }
+        uncertainties:
+          type: array
+          items: { type: string }
+        possibleCause: { type: string }
+        evidence:
+          type: array
+          items: { $ref: "#/components/schemas/EvidenceRecord" }
+        affectedOrders:
+          type: array
+          items: { type: string }
+        affectedCustomers:
+          type: array
+          items: { type: string }
+    RadarSummary:
+      type: object
+      required: [contextState, businessSignals, highRisk, potentialExposure, affectedCustomers, lastScan, topAnomalies]
+      properties:
+        contextState:
+          type: string
+          enum: [NO_CONTEXT, IMPORTED_CONTEXT]
+        businessSignals: { type: integer }
+        highRisk: { type: integer }
+        potentialExposure: { type: number }
+        affectedCustomers: { type: integer }
+        lastScan: { type: string }
+        topAnomalies:
+          type: array
+          items: { $ref: "#/components/schemas/Anomaly" }
+    ScanResult:
+      type: object
+      required: [summary, scannedAt, message]
+      properties:
+        summary: { $ref: "#/components/schemas/RadarSummary" }
+        scannedAt: { type: string }
+        message: { type: string }
+    CopilotQuestion:
+      type: object
+      required: [question]
+      properties:
+        question: { type: string, minLength: 1 }
+    CopilotAnswer:
+      type: object
+      required: [question, answer, basis]
+      properties:
+        question: { type: string }
+        answer: { type: string }
+        basis:
+          type: array
+          items: { type: string }
+    DataSource:
+      type: object
+      required: [id, name, status, description, recordCount, source, active, metrics]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        status: { type: string }
+        description: { type: string }
+        recordCount: { type: integer }
+        source: { type: string }
+        active: { type: boolean }
+        lastImported:
+          type: ["string", "null"]
+        metrics:
+          type: array
+          items: { $ref: "#/components/schemas/Metric" }
+    BusinessPulse:
+      type: object
+      required: [revenue, availableCash, expectedSettlements, inventoryValue, outstandingReceivables]
+      properties:
+        revenue: { type: number }
+        availableCash: { type: number }
+        expectedSettlements: { type: number }
+        inventoryValue: { type: number }
+        outstandingReceivables: { type: number }
+    BusinessOverview:
+      type: object
+      required: [contextState, merchant, subtitle, pulse, attentionCount, signals, razorpayHealth, businessHealth]
+      properties:
+        contextState:
+          type: string
+          enum: [NO_CONTEXT, IMPORTED_CONTEXT]
+        merchant: { type: string }
+        subtitle: { type: string }
+        pulse:
+          oneOf:
+            - $ref: "#/components/schemas/BusinessPulse"
+            - type: "null"
+        attentionCount: { type: integer }
+        signals:
+          type: array
+          items: { $ref: "#/components/schemas/Anomaly" }
+        razorpayHealth:
+          type: array
+          items: { $ref: "#/components/schemas/Metric" }
+        businessHealth:
+          type: array
+          items: { $ref: "#/components/schemas/Metric" }
+    Metric:
+      type: object
+      required: [label, value]
+      properties:
+        label: { type: string }
+        value: { type: string }
+    WorkbookSheet:
+      type: object
+      required: [name, normalizedType, rowCount, supported, preview]
+      properties:
+        name: { type: string }
+        normalizedType: { type: string }
+        rowCount: { type: integer }
+        supported: { type: boolean }
+        preview:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    WorkbookImport:
+      type: object
+      required: [fileName, importedAt, status, totalRecords, detectedSources, sheets, datasets, dataHealth]
+      properties:
+        fileName: { type: string }
+        importedAt: { type: string }
+        status: { type: string }
+        totalRecords: { type: integer }
+        detectedSources:
+          type: array
+          items: { type: string }
+        sheets:
+          type: array
+          items: { $ref: "#/components/schemas/WorkbookSheet" }
+        datasets:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/ImportedDataset"
+        dataHealth:
+          $ref: "#/components/schemas/DataHealth"
+    ImportedDataset:
+      type: object
+      required: [recordCount, aliases, available]
+      properties:
+        recordCount: { type: integer }
+        aliases:
+          type: array
+          items: { type: string }
+        available: { type: boolean }
+    DataHealth:
+      type: object
+      required: [recognizedDatasets, totalRecords, relationshipsResolved, missingRequiredFields, missingRequiredIds, duplicateIds, malformedDates, missingAmounts, unsupportedSheets, warnings]
+      properties:
+        recognizedDatasets: { type: integer }
+        totalRecords: { type: integer }
+        relationshipsResolved: { type: integer }
+        missingRequiredFields: { type: integer }
+        missingRequiredIds: { type: integer }
+        duplicateIds: { type: integer }
+        malformedDates: { type: integer }
+        missingAmounts: { type: integer }
+        unsupportedSheets: { type: integer }
+        warnings:
+          type: array
+          items: { type: string }
+    WorkbookUpload:
+      type: object
+      required: [file]
+      properties:
+        file:
+          type: string
+          format: binary
+    DataHub:
+      type: object
+      required: [contextState, razorpay, business, businessData, supportedSheets, contextSources, totalRecords, recognizedDatasets, contextStatus, lastUpdated, dataHealth, suggestedPrompts]
+      properties:
+        contextState:
+          type: string
+          enum: [NO_CONTEXT, IMPORTED_CONTEXT]
+        razorpay:
+          type: array
+          items: { $ref: "#/components/schemas/DataSource" }
+        business:
+          type: array
+          items: { $ref: "#/components/schemas/DataSource" }
+        businessData:
+          oneOf:
+            - $ref: "#/components/schemas/WorkbookImport"
+            - type: "null"
+        supportedSheets:
+          type: array
+          items: { type: string }
+        contextSources:
+          type: array
+          items: { $ref: "#/components/schemas/ContextSource" }
+        totalRecords: { type: integer }
+        recognizedDatasets: { type: integer }
+        contextStatus: { type: string }
+        lastUpdated:
+          type: ["string", "null"]
+        dataHealth:
+          oneOf:
+            - $ref: "#/components/schemas/DataHealth"
+            - type: "null"
+        suggestedPrompts:
+          type: array
+          items: { type: string }
+    ContextSource:
+      type: object
+      required: [id, name, recordCount, source, active]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        recordCount: { type: integer }
+        source: { type: string }
+        active: { type: boolean }
+    CopilotEvidence:
+      type: object
+      required: [source, dataset, records, recordIds]
+      properties:
+        source: { type: string }
+        dataset: { type: string }
+        records: { type: integer }
+        recordIds:
+          type: array
+          items: { type: string }
+    BusinessCopilotAnswer:
+      type: object
+      required: [verdict, summary, calculation, evidence, action, confidence, usedAi]
+      properties:
+        verdict: { type: string }
+        summary: { type: string }
+        calculation:
+          type: array
+          items: { $ref: "#/components/schemas/Metric" }
+        evidence:
+          type: array
+          items: { $ref: "#/components/schemas/CopilotEvidence" }
+        action: { type: string }
+        confidence:
+          type: string
+          enum: [High, Medium, Low]
+        usedAi: { type: boolean }
