@@ -1,66 +1,81 @@
 # Business Radar
 
-> **See what your business needs next.**
+<div align="center">
+  <img src="https://img.shields.io/badge/Razorpay%20%2B%20Replit-Hackathon-7C3AED?style=for-the-badge&logo=github" alt="Razorpay x Replit" />
+  <br />
+  <img src="https://img.shields.io/badge/Status-Prototype%20Ready-22c55e?style=flat-square" alt="Status" />
+  <img src="https://img.shields.io/badge/Stack-React%20%7C%20Express%20%7C%20TypeScript-0ea5e9?style=flat-square" alt="Stack" />
+  <img src="https://img.shields.io/badge/Runtime-Replit-1d4ed8?style=flat-square" alt="Replit" />
+</div>
+
+> See what your business needs next.
 >
-> A cross-system business intelligence layer that connects Razorpay payment context with orders, inventory, customers and operations to surface signals that individual systems can miss.
+> Business Radar connects payment movement, operational signals, and merchant context into one decision layer so leaders can spot risk, explain anomalies, and act faster.
 
-Built for the **Razorpay × Replit Hackathon**.
+Built for the Razorpay × Replit Hackathon.
 
-## The problem
+---
 
-Merchants already have dashboards for payments, orders, inventory, support and accounting. The harder problem is connecting those signals.
+## Why this exists
 
-A payment platform can tell you a payment succeeded. An inventory system can tell you stock is low. A support system can tell you customers are complaining. The merchant still has to connect the dots and decide what matters.
+Merchants are flooded with partial signals:
 
-**Business Radar connects the dots.**
+- payments succeed but settlement looks off
+- inventory is low while cash is under pressure
+- refunds spike in one region while support tickets rise elsewhere
+- teams are left stitching the story together manually
+
+Business Radar brings those signals together and turns them into a clear business narrative.
 
 > Razorpay tells you where the money moved. Business Radar helps explain what that means for the business.
 
+---
+
 ## What it does
 
-### 1. Business Radar
+### 1. Radar intelligence
 
-Automatically surfaces high-value signals across the merchant's data, such as:
+Automatically detects high-impact business signals such as:
 
-- payment and settlement inconsistencies
-- cash pressure
+- payment and settlement mismatches
+- cash flow stress
 - inventory and replenishment risk
-- overdue receivables
-- refund and customer-support patterns
-- cross-system anomalies
+- receivables pressure
+- refund/support anomalies
+- cross-system risk patterns
 
-### 2. Investigation
+### 2. Investigation flow
 
-Turns an alert into an evidence trail. A merchant can trace an issue across entities such as:
+Each alert becomes a traceable story:
 
-`Order → Payment → Settlement → Support`
+Order → Payment → Settlement → Support
 
-and inspect the underlying record IDs, amounts and timestamps.
+You can drill into timestamps, amounts, record IDs, and derived context to understand the root cause instead of guessing.
 
 ### 3. Business Copilot
 
-Answers business questions using trusted calculations and relevant evidence, with an optional OpenAI-compatible integration and deterministic fallback.
+Ask natural questions and get grounded answers backed by calculations and evidence.
 
-Example questions:
+Examples:
 
 - Can I afford a ₹3L inventory purchase?
-- What's putting my cash flow under pressure?
-- Which products should I restock first?
-- Who should I chase for payment?
-- Why is settlement value lower than payment value?
+- What is pressuring cash flow right now?
+- Which products should be replenished first?
+- Who should I chase for overdue payment?
+- Why is settlement lower than payment value?
 
-### 4. Excel Business Context
+### 4. Workbook-driven context ingestion
 
-Upload an `.xlsx` workbook and Business Radar can import merchant operational datasets such as:
+Upload merchant Excel files and bring in operational context from the business layer:
 
-**Razorpay lane**
+#### Razorpay lane
 - Payments
 - Refunds
 - Settlements
 - Payouts
 - Disputes
 
-**Business lane**
+#### Business lane
 - Customers
 - Products
 - Orders
@@ -70,57 +85,77 @@ Upload an `.xlsx` workbook and Business Radar can import merchant operational da
 - Receivables
 - Support
 
-The imported records become the context used by the Radar and Copilot flows.
+This context powers both the Radar and Copilot experiences.
+
+---
 
 ## Architecture
 
 ```text
-                Business Data
-                     │
-        ┌────────────┴────────────┐
-        │                         │
-     Razorpay                Business Data
-   Payments/Refunds          Orders/Inventory
-   Settlements/Payouts       Customers/Expenses
-   Disputes                  Suppliers/Support
-        │                         │
-        └────────────┬────────────┘
-                     ▼
-              Normalization
-                     ▼
-            Detection + Context
-                     ▼
-          ┌──────────┴──────────┐
-          ▼                     ▼
-        Radar                Copilot
-          │                     │
-          ▼                     ▼
-   Investigation          Decision Support
+                 Business Data
+                       │
+         ┌─────────────┴─────────────┐
+         │                           │
+   Razorpay Signals          Merchant Ops Data
+   Payments / Refunds        Orders / Inventory
+   Settlements / Payouts     Customers / Expenses
+   Disputes                  Suppliers / Support
+         │                           │
+         └──────────────┬────────────┘
+                        ▼
+                Normalization + Context
+                        ▼
+                    Detection Engine
+                        ▼
+          ┌───────────────────────┐
+          │                       │
+          ▼                       ▼
+      Business Radar         Copilot
+      Alerts + Evidence     Decision Support
+          │                       │
+          └──────────────┬────────┘
+                         ▼
+                 Investigation Flow
 ```
 
-The core design principle is to keep trusted calculations and matching logic deterministic, then use the language model for interpretation, synthesis and explanation.
+The product keeps calculations and matching logic deterministic, then uses AI as an interpretation layer for explanation and synthesis.
 
-## Tech stack
+---
 
-- **Frontend:** React, TypeScript, Vite
-- **Backend:** Node.js, Express, TypeScript
-- **Data import:** `xlsx` workbook parsing
-- **AI:** OpenAI-compatible API with deterministic fallback
-- **Data/API validation:** Zod / generated API client
-- **UI:** Tailwind CSS, Radix UI, Lucide icons, Recharts
-- **Workspace:** pnpm monorepo
-- **Runtime:** Replit
+## Stack
 
-## Project structure
+- Frontend: React, Vite, TypeScript
+- Backend: Node.js, Express, TypeScript
+- Data import: XLSX workbook parsing
+- AI layer: OpenAI-compatible API with deterministic fallback
+- Validation: Zod + generated API clients
+- UI: Tailwind CSS, Radix UI, Recharts, Lucide icons
+- Repo toolchain: pnpm monorepo
+- Runtime: Replit
+
+---
+
+## Repository structure
 
 ```text
-artifacts/
-  business-radar/     # React frontend
-  api-server/         # Express API and intelligence layer
-lib/
-  api-client-react/   # Generated frontend API client
-  api-spec/           # OpenAPI contract
+.
+├── artifacts/
+│   ├── business-radar/     # React frontend
+│   └── api-server/         # Express API + intelligence logic
+├── lib/
+│   ├── api-client-react/   # Generated frontend client
+│   ├── api-spec/           # OpenAPI contract
+│   ├── api-zod/            # Type-safe schema layer
+│   └── db/                 # Database layer
+├── package.json
+├── pnpm-workspace.yaml
+├── pnpm-lock.yaml
+├── tsconfig.json
+├── README.md
+└── .gitignore
 ```
+
+---
 
 ## Getting started
 
@@ -129,60 +164,70 @@ lib/
 - Node.js
 - pnpm
 
-### Install
+### Install dependencies
 
 ```bash
 pnpm install
 ```
 
-### Run checks
+### Run type checks
 
 ```bash
 pnpm run typecheck
 ```
 
-### Build
+### Build the workspace
 
 ```bash
 pnpm run build
 ```
 
-The workspace is designed to run inside Replit with the existing workspace configuration.
+The project is designed to run smoothly inside Replit with the current workspace setup.
+
+---
 
 ## AI configuration
 
-The Copilot can use an OpenAI-compatible API when these environment variables are available:
+The Copilot layer can use an OpenAI-compatible API when the following environment variables are present:
 
-```text
+```bash
 AI_INTEGRATIONS_OPENAI_API_KEY=...
 AI_INTEGRATIONS_OPENAI_BASE_URL=...
 ```
 
-If the AI integration is unavailable, Business Radar falls back to trusted deterministic responses so the core product remains usable.
+If those values are unavailable, the app falls back to deterministic logic so the product still remains functional and trustworthy.
+
+---
 
 ## Demo flow
 
-1. Open Business Radar.
-2. Upload a merchant `.xlsx` workbook from the **Data** page.
-3. Business Radar recognizes the available data sources.
-4. Scan the business in **Radar**.
-5. Open a signal to inspect its evidence chain.
-6. Ask a business question in **Copilot**.
-7. Review the calculated answer, evidence and recommended next step.
+1. Open the Business Radar frontend.
+2. Upload a merchant workbook from the Data page.
+3. Let the app detect the available source data.
+4. Run a scan in the Radar view.
+5. Open a signal to inspect evidence and relationships.
+6. Ask a business question in Copilot.
+7. Review the answer, supporting evidence, and recommended next step.
+
+---
 
 ## Design principle
 
-Business Radar is intentionally not another generic chatbot or another payment dashboard.
+Business Radar is not another generic chatbot and not just another dashboard.
 
-The product focuses on the layer between systems:
+Its mission is the layer between systems:
 
-**data → relationships → signal → explanation → decision**
+data → relationships → signal → explanation → decision
 
-## Hackathon note
+---
 
-This project was built and prototyped on **Replit** for the **Razorpay × Replit Hackathon**.
+## Hackathon context
 
-Razorpay and Replit are referenced in the context of the hackathon and platform integration concept; this repository does not claim an official endorsement or partnership beyond the event context.
+This project was built and prototyped on Replit for the Razorpay × Replit Hackathon.
+
+It is intended as a concept demo and product prototype in that context.
+
+---
 
 ## License
 
